@@ -21,8 +21,10 @@ const games = [
 </template>
 
 <style scoped>
+
 main {
   padding: 20px;
+  background-color: rgb(53, 53, 53);
 }
 
 .games-section {
@@ -39,5 +41,11 @@ main {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 20px;
+}
+</style>
+
+<style>
+body{
+  background-color:  #c2c2c2;
 }
 </style>

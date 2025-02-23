@@ -13,6 +13,14 @@
 </template>
 
 <style scoped>
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--color-text);
+  background: #f0f0f0;
+  margin: 0;
+  padding: 0;
+}
 .item {
   margin-top: 2rem;
   display: flex;

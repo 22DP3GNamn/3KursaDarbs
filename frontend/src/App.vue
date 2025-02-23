@@ -1,14 +1,12 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-
 </script>
 
 <template>
   <header>
     <nav>
       <div class="nav-left">
-          <span class="brand-name">GAMESTOP</span>
+          <span class="brand-name">YGvido</span>
       </div>
       <div class="hamburger" onclick="toggleMenu()">&#9776;</div>
       <div class="nav-links" id="navLinks">
@@ -31,12 +29,12 @@ import HelloWorld from './components/HelloWorld.vue'
   <RouterView />
 </template>
 
+
 <style scoped>
 
 body {
     z-index: -1;
     font-family: Arial, sans-serif;
-    background-color: #ffffff;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
@@ -54,7 +52,7 @@ body {
     height: auto;
 }
 
-.game-box {
+/* .game-box {
     margin-top: 40px;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -97,7 +95,7 @@ body {
     background-color: #000000;
     transition: 0.5s;
     display: inline-block;
-}
+} */
 
 nav {
     display: flex;
@@ -239,12 +237,6 @@ header:hover::before {
     transform: translateX(-75px);
 }
 
-/* Existing styles */
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
 .logo {
   display: block;
   margin: 0 auto 2rem;
@@ -254,7 +246,7 @@ nav {
   width: 100%;
   font-size: 12px;
   text-align: center;
-  margin-top: 0; /* Changed from 2rem to 0 */
+  margin-top: 0;
 }
 
 nav a.router-link-exact-active {
@@ -286,18 +278,12 @@ nav a:first-of-type {
     margin: 0 2rem 0 0;
   }
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
   nav {
     text-align: left;
     margin-left: -1rem;
     font-size: 1rem;
     padding: 1rem 0;
-    margin-top: 0; /* Changed from 1rem to 0 */
+    margin-top: 0;
   }
 }
 </style>

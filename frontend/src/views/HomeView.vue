@@ -1,11 +1,11 @@
 <script setup>
 import GameCard from '../components/GameCard.vue'
+import image1 from '../assets/icons/images.jpeg'
 
 const games = [
-  { title: 'Game 1', description: 'Description for Game 1', image: 'path/to/image1.jpg' },
-  { title: 'Game 2', description: 'Description for Game 2', image: 'path/to/image2.jpg' },
-  { title: 'Game 3', description: 'Description for Game 3', image: 'path/to/image3.jpg' },
-  // Add more games as needed
+  { title: 'Game 1', description: 'Description for Game 1', image: image1 },
+  { title: 'Game 2', description: 'Description for Game 2', image: image1 },
+  { title: 'Game 3', description: 'Description for Game 3', image: image1 },
 ]
 </script>
 
@@ -21,31 +21,5 @@ const games = [
 </template>
 
 <style scoped>
-
-main {
-  padding: 20px;
-  background-color: rgb(53, 53, 53);
-}
-
-.games-section {
-  margin-top: 40px;
-}
-
-.games-section h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 2em;
-}
-
-.games-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-}
-</style>
-
-<style>
-body{
-  background-color:  #c2c2c2;
-}
+@import '../assets/main.css';
 </style>

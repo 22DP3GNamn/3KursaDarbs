@@ -27,3 +27,7 @@ Dienas izaicinājumi – uzdevumi, kas motivē spēlētājus iesaistīties un pe
 
 Mājaslapa veicinās lietotāju aktivitāti un iesaisti, pateicoties motivējošai atlīdzību sistēmai. Tā būs moderna, interaktīva un pielāgota videospēļu entuziastu interesēm, nodrošinot gan izklaidi, gan sociālo mijiedarbību.
 
+backend --php artisan serv
+frontend --npm run dev
+
+im using laravel 5.11.2 can u make it so that when user ir registered the user inputed data goes in xampp database and i need it so that user can be able to log in with that username by using his password what is stored in database

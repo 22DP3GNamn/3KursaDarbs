@@ -14,7 +14,9 @@ php -S  10.100.120.127:9001 -t public
 php artisan serve --host=0.0.0.0 --port=9001
 npm run dev
 
+# AIO LAUNCH
 
+composer run dev
 
 ### ON LIVE-SHARE MUST:
 SHARE THE LOCALHOST 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PartyController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
@@ -13,7 +14,7 @@ use App\Models\User;
 
 // API Routes
 Route::get('/api/user-session', function () {
-    return response()->json(['user' => auth()->user()]);
+    return response()->json(['user' => Auth::user()]);
 });
 Route::delete('/api/users/bulk-delete', [UserController::class, 'bulkDeleteUsers']);
 Route::put('/api/users/bulk-update', [UserController::class, 'bulkUpdateUsers']);
@@ -69,6 +70,14 @@ Route::get('/send-test-email', function () {
 
 
 
+// Party Route
 
-
-
+Route::middleware('auth')->group(function () {
+    Route::post('/party', [PartyController::class, 'create']);
+    Route::post('/party/{party}/invite', [PartyController::class, 'inviteUser']);
+    Route::post('/invitation/{invitation}/respond', [PartyController::class, 'respondToInvitation']);
+    Route::delete('/party/{party}/kick/{userId}', [PartyController::class, 'kickUser']);
+    Route::delete('/party/{party}', [PartyController::class, 'disbandParty']);
+    Route::get('/party/current', [PartyController::class, 'getCurrentParty'])->middleware('auth');
+    Route::get('/invitations', [PartyController::class, 'getInvitations'])->middleware('auth');
+});

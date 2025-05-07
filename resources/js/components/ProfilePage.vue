@@ -14,13 +14,19 @@
         </div>
       </div>
     </div>
+        <PartyBox>
+        </PartyBox>
   </AppLayout>
 </template>
 <script scoped>
 import ProfileScript from '../scripts/Profile.js';
+import PartyBox from '../layouts/PartyBox.vue';
 
 export default {
   mixins: [ProfileScript],
+  components: {
+    PartyBox,
+  },
   props: {
     user: {
       type: Object,
@@ -37,5 +43,5 @@ export default {
       return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     },
   },
-}
+};
 </script>

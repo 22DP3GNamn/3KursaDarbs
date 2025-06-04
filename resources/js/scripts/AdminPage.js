@@ -1,3 +1,5 @@
+import NotificationManager from './NotificationManager.js'; // Import NotificationManager
+
 export default {
   data() {
     return {
@@ -43,10 +45,10 @@ export default {
           const data = await response.json();
           this.signedInUserId = data.user.id;
         } else {
-          console.error("Failed to fetch signed-in user");
+          NotificationManager.showNotification("Failed to fetch signed-in user.");
         }
       } catch (error) {
-        console.error("Error fetching signed-in user:", error);
+        NotificationManager.showNotification("Error fetching signed-in user: " + error.message);
       }
     },
 
@@ -61,10 +63,10 @@ export default {
           }));
           this.originalUsers = JSON.parse(JSON.stringify(this.users));
         } else {
-          console.error("Failed to fetch users");
+          NotificationManager.showNotification("Failed to fetch users.");
         }
       } catch (error) {
-        console.error("Error fetching users:", error);
+        NotificationManager.showNotification("Error fetching users: " + error.message);
       } finally {
         this.loading = false;
       }
@@ -76,16 +78,12 @@ export default {
       );
     },
 
-    updateRole(userId, newRole) {
+    updateField(userId, field, value) {
       const user = this.users.find((u) => u.id === userId);
-      const originalUser = this.originalUsers.find((u) => u.id === userId);
-
-      if (user && originalUser) {
-        user.role = newRole;
-        user.roleChanged = user.role !== originalUser.role;
-        this.markAsChanged();
-      } else {
-        console.error("Failed to find the user for updating role.");
+      if (user) {
+        user[field] = value;
+        user.roleChanged = true; // Mark as changed
+        this.hasChanges = true; // Enable save button
       }
     },
 
@@ -93,7 +91,7 @@ export default {
       const sortedUser = this.filteredAndSortedUsers[index];
       const originalIndex = this.users.findIndex((user) => user.id === sortedUser.id);
       if (this.users[originalIndex].id === this.signedInUserId) {
-        alert("You cannot delete your own profile.");
+        NotificationManager.showNotification("You cannot delete your own profile.", 'bg-red-500');
         return;
       }
       this.users[originalIndex].markedForDeletion = !this.users[originalIndex].markedForDeletion;
@@ -101,49 +99,25 @@ export default {
     },
 
     async confirmChanges() {
-      try {
-        const usersToUpdate = this.users.filter((user) => !user.markedForDeletion && user.roleChanged);
-        const usersToDelete = this.users.filter((user) => user.markedForDeletion);
+      const updatedUsers = this.users.filter((user) => user.roleChanged || user.markedForDeletion);
+      // Send updatedUsers to the backend
+      this.saveChangesToBackend(updatedUsers);
+    },
 
-        if (usersToUpdate.length > 0) {
-          const updateResponse = await fetch("/api/users/bulk-update", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-            },
-            body: JSON.stringify({ users: usersToUpdate }),
-          });
-
-          if (!updateResponse.ok) {
-            const errorData = await updateResponse.json();
-            console.error("Failed to update users:", errorData);
-            return;
-          }
-        }
-
-        if (usersToDelete.length > 0) {
-          const deleteResponse = await fetch("/api/users/bulk-delete", {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-            },
-            body: JSON.stringify({ userIds: usersToDelete.map((user) => user.id) }),
-          });
-
-          if (!deleteResponse.ok) {
-            const errorData = await deleteResponse.json();
-            console.error("Failed to delete users:", errorData);
-            return;
-          }
-        }
-
-        await this.fetchUsers();
-        this.hasChanges = false;
-      } catch (error) {
-        console.error("Error confirming changes:", error);
-      }
+    async saveChangesToBackend(updatedUsers) {
+      // Use Axios for the API call
+      axios.post('/save-users', { users: updatedUsers }) // Updated endpoint
+        .then(() => {
+          // Remove deleted users from the users array
+          this.users = this.users.filter((user) => !user.markedForDeletion);
+          this.originalUsers = JSON.parse(JSON.stringify(this.users)); // Update originalUsers
+          this.hasChanges = false; // Reset changes tracker
+          NotificationManager.showNotification('Changes saved successfully!', 'bg-green-500');
+        })
+        .catch((error) => {
+          console.error(error);
+          NotificationManager.showNotification('Failed to save changes.', 'bg-red-500');
+        });
     },
 
     resetChanges() {
@@ -152,7 +126,6 @@ export default {
     },
 
     sortUsers() {
-      // Sorting is handled by `filteredAndSortedUsers`, no need to modify `id`.
       this.markAsChanged();
     },
   },

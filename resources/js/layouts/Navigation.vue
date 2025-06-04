@@ -2,10 +2,10 @@
   <nav id="navbar" class="visible">
     <div class="logo"><a href="/">Test Page</a></div>
     <ul class='left-nav'>
-      <li><a class="button" href="/game">Game</a></li>
       <li v-if="!user && currentPath !== '/login'"><a class="button" href="/login">Login</a></li>
       <li v-if="!user && currentPath !== '/register'"><a class="button" href="/register">Registration</a></li>
       <li v-if="user && user.role === 'admin'"><a class="button" href="/admin">Dashboard</a></li>
+      <li v-if="user"><a class="button" href="/party">Party</a></li>
     </ul>
     <a v-if="user" class="profile-btn" href="/profile">
       <img src="/Images/defaultpfp.png" alt="Profile">
@@ -23,10 +23,10 @@
     </div>
 
     <ul>
-      <li><a class='sidewall-button' href="/game">Game</a></li>
       <li v-if="!user"><a class='sidewall-button' href="/login">Login</a></li>
       <li v-if="!user"><a class='sidewall-button' href="/register">Registration</a></li>
       <li v-if="user && user.role === 'admin'"><a class="sidewall-button" href="/admin">Dashboard</a></li>
+      <li v-if="user"><a class='sidewall-button' href="/party">Party</a></li>
     </ul>
     <form v-if="user" method="POST" action="/logout" class="sidewall-logout-form">
       <input type="hidden" name="_token" :value="csrfToken">

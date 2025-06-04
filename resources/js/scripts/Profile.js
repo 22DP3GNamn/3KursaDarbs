@@ -11,7 +11,7 @@ export default {
             window.location.href = '/login';
           }
         } catch (error) {
-          alert('An error occurred while logging out. Please try again.');
+          NotificationManager.showNotification('An error occurred while logging out. Please try again.');
         }
       },
     },

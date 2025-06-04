@@ -7,6 +7,7 @@ import AdminPage from './components/AdminPage.vue';
 import HomePage from './components/HomePage.vue';
 import GamePage from './components/GamePage.vue';
 import ExamplePage from './components/ExamplePage.vue';
+import PartyPage from './components/PartyPage.vue'; // Import PartyPage component
 import AppLayout from './layouts/App.vue';
 
 createApp({})
@@ -21,6 +22,7 @@ createApp({})
     .component('admin-page', AdminPage)
     .component('game-page', GamePage)
     .component('example-page', ExamplePage)
+    .component('party-page', PartyPage) // Register PartyPage component
 
     .mount('#app');
 

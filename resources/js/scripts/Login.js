@@ -1,3 +1,5 @@
+import NotificationManager from '../scripts/NotificationManager';
+
 export default {
     data() {
         return {
@@ -12,13 +14,16 @@ export default {
             try {
                 const response = await axios.post('/login', this.form);
                 if (response.status === 200) {
-                    window.location.href = '/profile';
+                    NotificationManager.showNotification('Login successful! Redirecting...', 'bg-green-500');
+                    setTimeout(() => {
+                        window.location.href = '/profile';
+                    }, 1000);   
                 }
             } catch (error) {
                 if (error.response && error.response.data) {
-                    alert(error.response.data.error || 'Invalid credentials');
+                    NotificationManager.showNotification(error.response.data.error || 'The email or password you entered is incorrect.', 'bg-red-500');
                 } else {
-                    alert('An error occurred. Please try again.');
+                    NotificationManager.showNotification('An error occurred. Please try again.', 'bg-red-500');
                 }
             }
         },

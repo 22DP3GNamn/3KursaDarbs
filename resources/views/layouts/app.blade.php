@@ -16,5 +16,7 @@
     </div>
     <div id="notification-container"></div>
 </body>
-
+<script>
+    window.Laravel = {!! json_encode(['user' => Auth::user() ? ['id' => Auth::id()] : null]) !!};
+</script>
 </html>

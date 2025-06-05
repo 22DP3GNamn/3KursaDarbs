@@ -6,5 +6,4 @@ enum Role: string
 {
     case Admin = 'admin';
     case User = 'user';
-    case Editor = 'editor';
 }

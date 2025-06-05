@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestMail;
 use App\Models\User;
+use Illuminate\Support\Facades\Broadcast;
 
 // API Routes
 Route::get('/api/user-session', function () {return response()->json(['user' => Auth::user()]);});
@@ -54,7 +55,7 @@ Route::get('/send-test-email', function () {Mail::to('recipient@example.com')->s
 // Party Route
 Route::middleware('auth')->group(function () {
     // Serve the Party Page
-    Route::get('/party', fn() => view('party')); // Add this route for GET requests
+    Route::get('/party', fn() => view('party'));
 
     // Fetch the current party
     Route::get('/party/current', [PartyController::class, 'getCurrentParty']);
@@ -66,6 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/party/{party}/kick/{userId}', [PartyController::class, 'kickUser']);
     Route::delete('/party/{party}', [PartyController::class, 'disbandParty']);
     Route::get('/invitations', [PartyController::class, 'getInvitations']);
+    Route::post('/party/invite', [PartyController::class, 'invite'])->middleware('auth');
 });
 
 // Game Routes
@@ -75,3 +77,5 @@ Route::get('/games', [GameController::class, 'index'])->name('games.index');
 Route::post('/games', [GameController::class, 'save'])->name('games.store');
 Route::put('/games/{id}', [GameController::class, 'save'])->name('games.update');
 Route::delete('/games/{id}', [GameController::class, 'destroy'])->name('games.destroy');
+
+Broadcast::routes();

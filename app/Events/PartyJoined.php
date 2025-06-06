@@ -30,7 +30,7 @@ class PartyJoined implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'message' => "Player {$this->user->name ?? $this->user->username ?? $this->user->email} has joined the party!",
+            'message' => "Player " . ($this->user->name ?? $this->user->username ?? $this->user->email) . " has joined the party!",
             'user' => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,

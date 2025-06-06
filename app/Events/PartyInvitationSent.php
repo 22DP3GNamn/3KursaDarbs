@@ -37,7 +37,6 @@ class PartyInvitationSent implements ShouldBroadcast
                 'name' => $this->party->name,
             ],
             'invitation_id' => $this->invitation ? $this->invitation->id : null,
-            'message' => 'You have been invited to join a party!',
         ];
     }
 }

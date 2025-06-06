@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestMail;
 use App\Models\User;
-use Illuminate\Support\Facades\Broadcast;
+use App\Models\Game;
+use App\Models\Category;
 
 // API Routes
 Route::get('/api/user-session', function () {return response()->json(['user' => Auth::user()]);});
@@ -21,6 +22,12 @@ Route::put('/api/users/bulk-update', [UserController::class, 'bulkUpdateUsers'])
 Route::put('/api/users/{id}/update-role', [UserController::class, 'updateRole']);
 Route::patch('/api/users/{id}', [UserController::class, 'updateUserDetails']);
 Route::post('/api/save-users', [UserController::class, 'saveUsers']);
+Route::get('/api/games', function () {
+    return response()->json(Game::with('category')->get());
+});
+Route::get('/api/categories', function () {
+    return response()->json(Category::all());
+});
 
 // Admin Routes
 Route::get('/admin', function () {return view('admin');})->middleware('admin');
@@ -55,7 +62,7 @@ Route::get('/send-test-email', function () {Mail::to('recipient@example.com')->s
 // Party Route
 Route::middleware('auth')->group(function () {
     // Serve the Party Page
-    Route::get('/party', fn() => view('party'));
+    Route::get('/party', fn() => view('party')); // Add this route for GET requests
 
     // Fetch the current party
     Route::get('/party/current', [PartyController::class, 'getCurrentParty']);
@@ -67,7 +74,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/party/{party}/kick/{userId}', [PartyController::class, 'kickUser']);
     Route::delete('/party/{party}', [PartyController::class, 'disbandParty']);
     Route::get('/invitations', [PartyController::class, 'getInvitations']);
-    Route::post('/party/invite', [PartyController::class, 'invite'])->middleware('auth');
 });
 
 // Game Routes
@@ -78,4 +84,8 @@ Route::post('/games', [GameController::class, 'save'])->name('games.store');
 Route::put('/games/{id}', [GameController::class, 'save'])->name('games.update');
 Route::delete('/games/{id}', [GameController::class, 'destroy'])->name('games.destroy');
 
-Broadcast::routes();
+Route::middleware('auth')->group(function () {
+    Route::get('/games/create', fn() => view('creategame'));
+    
+    Route::post('/api/games', [GameController::class, 'store']);
+});

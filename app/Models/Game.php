@@ -2,11 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
 {
-    protected $fillable = ['name', 'description', 'status', 'category_id'];
+    use HasFactory;
+
+    protected $table = 'game'; // or 'games' if you rename the table
+
+    protected $fillable = [
+        'name',
+        'description',
+        'status',
+        'category_id',
+    ];
 
     public function category()
     {

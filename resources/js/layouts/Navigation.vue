@@ -6,6 +6,7 @@
       <li v-if="!user && currentPath !== '/register'"><a class="button" href="/register">Registration</a></li>
       <li v-if="user && user.role === 'admin'"><a class="button" href="/admin">Dashboard</a></li>
       <li v-if="user"><a class="button" href="/party">Party</a></li>
+      <li v-if="user"><a class="button" href="/games/create">Create Game</a></li>
     </ul>
     <a v-if="user" class="profile-btn" href="/profile">
       <img src="/Images/defaultpfp.png" alt="Profile">

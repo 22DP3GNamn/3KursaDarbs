@@ -55,9 +55,14 @@ class PartyController extends Controller
         // Get the invited user (User B)
         $user = User::where('username', $request->username)->first();
 
+        // Prevent inviting users who are already in a party
+        if ($user->current_party_id) {
+            return response()->json(['message' => 'User is already in a party!'], 400);
+        }
+
         // Count current members + pending invitations
         $currentMembers = $party->users()->count();
-        $pendingInvites = \App\Models\Invitation::where('party_id', $party->id)
+        $pendingInvites = Invitation::where('party_id', $party->id)
             ->where('status', 'pending')
             ->count();
 
@@ -112,12 +117,16 @@ class PartyController extends Controller
         if ($kickedUser) {
             $kickedUser->current_party_id = null;
             $kickedUser->save();
-            event(new \App\Events\PartyKicked($kickedUser));
+            if ($kickedUser instanceof User) {
+                event(new \App\Events\PartyKicked($kickedUser));
+            } else {
+                Log::error('Failed to broadcast PartyKicked event: Invalid user instance.', ['user_id' => $userId]);
+            }
         }
 
         // If no users left in the party, delete it and its invitations
         if ($party->users()->count() === 0) {
-            \App\Models\Invitation::where('party_id', $party->id)->delete();
+            Invitation::where('party_id', $party->id)->delete();
             $party->delete();
         }
 
@@ -130,11 +139,21 @@ class PartyController extends Controller
             return response()->json(['message' => 'Only the party owner can disband the party!'], 403);
         }
 
+        // Get all users in the party before clearing
+        $users = $party->users()->get();
+
         // Clear the current_party_id for all users in the party
         $party->users()->update(['current_party_id' => null]);
 
+        // Broadcast PartyKicked event to all users EXCEPT the owner
+        foreach ($users as $user) {
+            if ($user->id !== $party->owner_id) {
+                event(new \App\Events\PartyKicked($user));
+            }
+        }
+
         // Delete all invitations for this party
-        \App\Models\Invitation::where('party_id', $party->id)->delete();
+        Invitation::where('party_id', $party->id)->delete();
 
         $party->delete();
 

@@ -35,6 +35,21 @@ class GameController extends Controller
         $message = $id ? 'Game updated successfully.' : 'Game created successfully.';
         return redirect()->route('games.index')->with('success', $message);
     }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:active,inactive',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $game = Game::create($validated);
+
+        return response()->json(['message' => 'Game created successfully!', 'game' => $game]);
+    }
+
     public function destroy($id)
     {
         $game = Game::findOrFail($id);

@@ -1,122 +1,37 @@
 <template>
   <AppLayout>
-    <div class="container mx-auto p-8 max-w-xl">
-      <h1 class="text-3xl font-bold mb-8 text-center">Party Management</h1>
-
-      <!-- Create Party Button -->
-      <div v-if="!party" class="flex flex-col items-center">
-        <button
-          @click="showCreate = true"
-          class="bg-blue-600 text-white text-2xl px-8 py-4 rounded-lg shadow-lg hover:bg-blue-700 transition mb-4"
-        >
-          Create Party
-        </button>
-        <div v-if="showCreate" class="w-full mt-4">
-          <form @submit.prevent="createParty" class="flex flex-col items-center">
-            <input
-              v-model="partyName"
-              type="text"
-              placeholder="Party Name"
-              class="border border-gray-300 px-4 text-white py-2 rounded w-full mb-2"
-              required
-            />
-            <button
-              type="submit"
-              class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
-            >
-              Confirm Create
-            </button>
-          </form>
-          <div v-if="message" class="text-green-500 mt-2">{{ message }}</div>
-        </div>
-      </div>
-
-      <!-- Party Info -->
-      <div v-else>
-        <div class="mb-6">
-          <h2 class="text-2xl font-semibold mb-2 text-white">Party: {{ party.name }}</h2>
-          <button
-            @click="disbandParty"
-            class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-          >
-            Disband Party
-          </button>
-        </div>
-
-        <!-- Party Members -->
-        <div class="mb-6">
-          <h3 class="text-xl font-semibold mb-2">Members</h3>
-          <ul class="bg-gray-100 rounded p-4">
-            <li
-              v-for="member in party.users"
-              :key="member.id"
-              class="flex justify-between items-center mb-2"
-            >
-              <span>
-                <span v-if="member.id === party.owner_id" title="Party Owner" style="color:gold; font-size:1.2em; vertical-align:middle;">&#x1F451;</span>
-                {{ member.name || member.username || member.email }}
-              </span>
-              <button
-                v-if="canKick(member)"
-                @click="kickMember(member.id)"
-                class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-              >
-                Kick
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Invite Section -->
-        <div class="mb-6">
-          <h3 class="text-xl font-semibold mb-2 text-white">Invite Member</h3>
-          <form @submit.prevent="inviteMember" class="flex" v-if="!isPartyFull">
-            <input
-              v-model="inviteUsername"
-              type="text"
-              placeholder="Enter username"
-              class="border border-gray-300 px-4 py-2 rounded w-full text-white"
-              required
-            />
-            <button
-              type="submit"
-              class="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              Invite
-            </button>
-          </form>
-          <div v-if="isPartyFull" class="text-red-500 mt-2">Party is full (max 5 users)!</div>
-          <div v-if="inviteMessage" class="text-green-500 mt-2">{{ inviteMessage }}</div>
-        </div>
-      </div>
-
-      <!-- Invitation Popup -->
+    <div class="min-h-screen flex items-center justify-center"
+         style="background: linear-gradient(45deg, #000 0%, #222 30%, #bbb 50%, #222 70%, #000 100%);">
+      <!-- Popups OUTSIDE the card container -->
       <transition name="fade">
         <div
           v-if="invitePopup.visible"
           class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50"
         >
-          <div class="relative bg-white text-gray-900 p-8 rounded-lg shadow-lg w-[350px] text-center">
+          <div
+            class="relative p-8 rounded-2xl shadow-2xl w-[350px] text-center border border-green-200"
+            style="background: rgba(220,220,220,0.92); backdrop-filter: blur(12px);"
+          >
             <div
-              class="absolute top-0 left-0 h-1 bg-blue-500 rounded-t-lg transition-all"
+              class="absolute top-0 left-0 h-1 bg-green-500 rounded-t-lg transition-all"
               :style="{ width: invitePopup.progress + '%' }"
             ></div>
-            <h2 class="text-xl font-bold mb-2">Party Invitation</h2>
-            <p class="mb-4">
-              You have been invited to join <strong>{{ invitePopup.party?.name }}</strong>.
+            <h2 class="text-xl font-bold mb-2 text-green-900">Party Invitation</h2>
+            <p class="mb-4 text-gray-700">
+              You have been invited to join <strong class="text-green-700">{{ invitePopup.party?.name }}</strong>.
             </p>
             <div class="flex justify-center gap-4">
               <button
                 :disabled="invitePopup.responding || !invitePopup.invitationId"
                 @click="respondToInvitation('accepted')"
-                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
+                class="bg-gradient-to-r from-green-500 to-green-700 text-white px-4 py-2 rounded-lg font-semibold hover:scale-105 hover:from-green-600 hover:to-green-800 disabled:opacity-50 transition"
               >
                 Accept
               </button>
               <button
                 :disabled="invitePopup.responding || !invitePopup.invitationId"
                 @click="respondToInvitation('rejected')"
-                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50"
+                class="bg-gradient-to-r from-red-500 to-red-700 text-white px-4 py-2 rounded-lg font-semibold hover:scale-105 hover:from-red-600 hover:to-red-800 disabled:opacity-50 transition"
               >
                 Reject
               </button>
@@ -131,13 +46,13 @@
         </div>
       </transition>
 
-      <!-- Kicked Popup -->
       <transition name="fade">
         <div
           v-if="kickedPopup.visible"
           class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50"
         >
-          <div class="bg-white text-red-600 p-8 rounded-lg shadow-lg text-center text-xl font-bold">
+          <div class="p-8 rounded-2xl shadow-2xl text-center text-xl font-bold border border-green-200"
+               style="background: rgba(220,220,220,0.92); backdrop-filter: blur(12px); color: #166534;">
             {{ kickedPopup.message }}
             <div class="mt-4 text-xs text-gray-500">
               This will close in {{ kickedPopup.secondsLeft }}s
@@ -146,15 +61,139 @@
         </div>
       </transition>
 
-      <!-- Top-right notifications -->
-      <div class="fixed top-4 right-4 z-50 space-y-2" style="pointer-events:none;">
+      <!-- Disbanded Success Popup (top middle) -->
+      <transition name="fade">
         <div
-          v-for="n in notifications"
-          :key="n.id"
-          class="bg-green-600 text-white px-6 py-3 rounded shadow-lg font-semibold animate-fade-in"
-          style="pointer-events:auto;"
+          v-if="disbandedPopup.visible"
+          class="fixed top-8 left-1/2 transform -translate-x-1/2 z-50"
+          style="pointer-events:none;"
         >
-          {{ n.message }}
+          <div class="bg-green-700 text-white px-8 py-4 rounded-xl shadow-lg font-semibold text-lg">
+            {{ disbandedPopup.message }}
+          </div>
+        </div>
+      </transition>
+
+      <!-- Invite Success Popup (top middle) -->
+      <transition name="fade">
+        <div
+          v-if="inviteSuccessPopup.visible && inviteSuccessPopup.message"
+          class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50"
+          style="pointer-events:none;"
+        >
+          <div class="bg-green-700 text-white px-8 py-4 rounded-xl shadow-lg font-semibold text-lg">
+            {{ inviteSuccessPopup.message }}
+          </div>
+        </div>
+      </transition>
+
+      <!-- Main card container -->
+      <div class="w-full max-w-2xl mx-auto p-6 sm:p-10 rounded-3xl shadow-2xl bg-white/70 backdrop-blur-md border border-white/30">
+        <h1 class="text-4xl font-extrabold mb-10 text-center text-green-700 drop-shadow">Party Management</h1>
+
+        <!-- Create Party Button -->
+        <div v-if="!party" class="flex flex-col items-center">
+          <button
+            @click="showCreate = true"
+            class="bg-gradient-to-r from-green-500 to-green-700 text-white text-2xl px-10 py-4 rounded-xl shadow-lg hover:scale-105 hover:from-green-600 hover:to-green-800 transition-all duration-200 mb-4"
+          >
+            Create Party
+          </button>
+          <div v-if="showCreate" class="w-full mt-4">
+            <form @submit.prevent="createParty" class="flex flex-col items-center gap-2">
+              <input
+                v-model="partyName"
+                type="text"
+                placeholder="Party Name"
+                class="border border-green-300 px-4 py-2 rounded-lg w-full mb-2 bg-white/80 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
+                required
+              />
+              <button
+                type="submit"
+                class="bg-gradient-to-r from-green-500 to-green-700 text-white px-8 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-green-600 hover:to-green-800 transition"
+              >
+                Confirm Create
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Party Info -->
+        <div v-else>
+          <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h2 class="text-2xl font-bold text-green-700 flex items-center gap-2">
+              <span class="inline-block w-3 h-3 rounded-full bg-green-400 animate-pulse"></span>
+              Party: <span class="text-green-900">{{ party.name }}</span>
+            </h2>
+            <button
+              @click="disbandParty"
+              class="bg-gradient-to-r from-green-600 to-green-900 text-white px-5 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-green-700 hover:to-green-950 transition-all duration-200"
+            >
+              Disband Party
+            </button>
+          </div>
+
+          <!-- Party Members -->
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold mb-3 text-green-900">Members</h3>
+            <ul class="bg-white/80 rounded-xl p-4 shadow flex flex-col gap-2">
+              <li
+                v-for="member in party.users"
+                :key="member.id"
+                class="flex items-center justify-between px-2 py-2 rounded-lg hover:bg-green-50 transition"
+              >
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-700 flex items-center justify-center text-white font-bold text-lg shadow">
+                    {{ (member.name || member.username || member.email).slice(0,2).toUpperCase() }}
+                  </div>
+                  <span class="font-medium text-gray-900">
+                    <span v-if="member.id === party.owner_id" title="Party Owner" class="mr-1 text-yellow-400 text-xl">&#x1F451;</span>
+                    {{ member.name || member.username || member.email }}
+                  </span>
+                </div>
+                <button
+                  v-if="canKick(member)"
+                  @click="kickMember(member.id)"
+                  class="bg-gradient-to-r from-green-500 to-green-700 text-white px-4 py-1 rounded-lg font-semibold shadow hover:scale-105 hover:from-green-600 hover:to-green-800 transition"
+                >
+                  Kick
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Invite Section -->
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold mb-3 text-green-900">Invite Member</h3>
+            <form @submit.prevent="inviteMember" class="flex gap-2" v-if="!isPartyFull">
+              <input
+                v-model="inviteUsername"
+                type="text"
+                placeholder="Enter username"
+                class="border border-green-300 px-4 py-2 rounded-lg w-full bg-white/80 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
+                required
+              />
+              <button
+                type="submit"
+                class="bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-green-600 hover:to-green-800 transition-all duration-200"
+              >
+                Invite
+              </button>
+            </form>
+            <div v-if="isPartyFull" class="text-red-500 mt-2 font-semibold">Party is full (max 5 users)!</div>
+          </div>
+        </div>
+
+        <!-- Top-right notifications -->
+        <div class="fixed top-4 right-4 z-50 space-y-2" style="pointer-events:none;">
+          <div
+            v-for="n in notifications"
+            :key="n.id"
+            class="bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg font-semibold animate-fade-in"
+            style="pointer-events:auto;"
+          >
+            {{ n.message }}
+          </div>
         </div>
       </div>
     </div>
@@ -162,281 +201,10 @@
 </template>
 
 <script>
+import PPage from '../scripts/PartyPage.js';
 export default {
-  data() {
-    return {
-      party: null,
-      partyName: "",
-      message: "",
-      showCreate: false,
-      inviteUsername: "",
-      inviteMessage: "",
-      invitePopup: {
-        visible: false,
-        invitationId: null,
-        party: null,
-        secondsLeft: 30,
-        progress: 100,
-        timer: null,
-        responding: false,
-      },
-      kickedPopup: {
-        visible: false,
-        message: '',
-        timer: null,
-        secondsLeft: 5,
-      },
-      notifications: [],
-      currentPartyChannelId: null,
-    };
-  },
-  mounted() {
-    this.fetchParty();
-    this.listenForInvites();
-    this.listenForKicked();
-  },
-  computed: {
-    isPartyFull() {
-      return this.party && this.party.users && this.party.users.length >= 5;
-    },
-  },
-  methods: {
-    async fetchParty() {
-      const res = await fetch("/party/current");
-      const data = await res.json();
-      const oldPartyId = this.currentPartyChannelId;
-      this.party = data.party;
-      // Always (re)subscribe to the party channel if party exists
-      if (this.party && this.party.id) {
-        if (oldPartyId !== this.party.id) {
-          if (oldPartyId) {
-            window.Echo.leave('party.' + oldPartyId);
-          }
-          this.currentPartyChannelId = this.party.id;
-          this.listenForPartyChannel();
-        }
-      } else if (oldPartyId) {
-        window.Echo.leave('party.' + oldPartyId);
-        this.currentPartyChannelId = null;
-      }
-    },
-    async createParty() {
-      this.message = "";
-      const res = await fetch("/party", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-        },
-        body: JSON.stringify({ name: this.partyName }),
-      });
-      const data = await res.json();
-      this.message = data.message || "Party created!";
-      this.partyName = "";
-      this.showCreate = false;
-      await this.fetchParty();
-    },
-    async disbandParty() {
-      if (!this.party) return;
-      const res = await fetch(`/party/${this.party.id}`, {
-        method: "DELETE",
-        headers: {
-          "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-        },
-      });
-      const data = await res.json();
-      this.message = data.message || "Party disbanded!";
-      this.party = null;
-      this.inviteUsername = "";
-      this.inviteMessage = "";
-    },
-    async kickMember(userId) {
-      if (!this.party) return;
-      const res = await fetch(`/party/${this.party.id}/kick/${userId}`, {
-        method: "DELETE",
-        headers: {
-          "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-        },
-      });
-      const data = await res.json();
-      this.message = data.message || "Member kicked!";
-      await this.fetchParty();
-    },
-    async inviteMember() {
-      this.inviteMessage = "";
-      if (!this.party) return;
-      try {
-        const res = await fetch(`/party/${this.party.id}/invite`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-          },
-          body: JSON.stringify({ username: this.inviteUsername }),
-        });
-        let data;
-        try {
-          data = await res.json();
-        } catch (e) {
-          const text = await res.text();
-          this.inviteMessage = "Server error: " + text.slice(0, 100);
-          return;
-        }
-        if (res.ok) {
-          this.inviteMessage = data.message || "User invited successfully!";
-          this.inviteUsername = "";
-        } else {
-          this.inviteMessage = data.message || "Failed to invite user.";
-        }
-      } catch (error) {
-        this.inviteMessage = "Error sending invitation: " + error.message;
-      }
-    },
-    canKick(member) {
-      // Only the party owner can kick, and not themselves
-      return (
-        this.party &&
-        this.party.owner_id === this.getUserId() &&
-        member.id !== this.getUserId()
-      );
-    },
-    getUserId() {
-      return window.Laravel?.user?.id;
-    },
-    listenForInvites() {
-      if (window.Laravel?.user?.id && window.Echo) {
-        window.Echo.channel('user.' + window.Laravel.user.id)
-          .listen('PartyInvitationSent', (e) => {
-            this.showInvitePopup(e);
-          })
-          .listen('.App\\Events\\PartyInvitationSent', (e) => {
-            this.showInvitePopup(e);
-          })
-          .listen('App\\Events\\PartyInvitationSent', (e) => {
-            this.showInvitePopup(e);
-          });
-      }
-    },
-    listenForKicked() {
-      if (window.Laravel?.user?.id && window.Echo) {
-        window.Echo.channel('user.' + window.Laravel.user.id)
-          .listen('PartyKicked', (e) => {
-            this.showKickedPopup(e.message);
-          })
-          .listen('.App\\Events\\PartyKicked', (e) => {
-            this.showKickedPopup(e.message);
-          })
-          .listen('App\\Events\\PartyKicked', (e) => {
-            this.showKickedPopup(e.message);
-          });
-      }
-    },
-    listenForPartyChannel() {
-      if (this.party && this.party.id && window.Echo) {
-        window.Echo.channel('party.' + this.party.id)
-          .listen('PartyJoined', (e) => {
-            this.showNotification(e.message);
-            this.fetchParty();
-          })
-          .listen('.App\\Events\\PartyJoined', (e) => {
-            this.showNotification(e.message);
-            this.fetchParty();
-          })
-          .listen('App\\Events\\PartyJoined', (e) => {
-            this.showNotification(e.message);
-            this.fetchParty();
-          })
-          .listen('PartyKicked', (e) => {
-            this.fetchParty();
-          })
-          .listen('.App\\Events\\PartyKicked', (e) => {
-            this.fetchParty();
-          })
-          .listen('App\\Events\\PartyKicked', (e) => {
-            this.fetchParty();
-          });
-      }
-    },
-    showInvitePopup(e) {
-      this.invitePopup.visible = true;
-      this.invitePopup.party = e.party;
-      this.invitePopup.invitationId = e.invitation_id || e.invitation?.id;
-      this.invitePopup.secondsLeft = 30;
-      this.invitePopup.progress = 100;
-      this.invitePopup.responding = false;
-      if (this.invitePopup.timer) clearInterval(this.invitePopup.timer);
-      this.invitePopup.timer = setInterval(() => {
-        this.invitePopup.secondsLeft--;
-        this.invitePopup.progress = (this.invitePopup.secondsLeft / 30) * 100;
-        if (this.invitePopup.secondsLeft <= 0) {
-          this.closeInvitePopup();
-        }
-      }, 1000);
-    },
-    async respondToInvitation(status) {
-      if (!this.invitePopup.invitationId || this.invitePopup.responding) {
-        return;
-      }
-      this.invitePopup.responding = true;
-      try {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
-        const response = await fetch(`/invitation/${this.invitePopup.invitationId}/respond`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": csrfToken,
-          },
-          body: JSON.stringify({ status }),
-        });
-        if (response.ok) {
-          if (status === "accepted") {
-            await this.fetchParty();
-          }
-        }
-      } catch (error) {
-        // Optionally show an error notification here
-      }
-      this.closeInvitePopup();
-    },
-    closeInvitePopup() {
-      this.invitePopup.visible = false;
-      this.invitePopup.party = null;
-      this.invitePopup.invitationId = null;
-      this.invitePopup.secondsLeft = 30;
-      this.invitePopup.progress = 100;
-      this.invitePopup.responding = false;
-      if (this.invitePopup.timer) clearInterval(this.invitePopup.timer);
-      this.invitePopup.timer = null;
-    },
-    showKickedPopup(message) {
-      this.kickedPopup.visible = true;
-      this.kickedPopup.message = message || 'You have been kicked from the party!';
-      this.kickedPopup.secondsLeft = 5;
-      if (this.kickedPopup.timer) clearInterval(this.kickedPopup.timer);
-      this.kickedPopup.timer = setInterval(() => {
-        this.kickedPopup.secondsLeft--;
-        if (this.kickedPopup.secondsLeft <= 0) {
-          this.closeKickedPopup();
-        }
-      }, 1000);
-      // Clear party state so user no longer sees the party
-      this.party = null;
-    },
-    showNotification(message) {
-      const id = Date.now();
-      this.notifications.push({ id, message });
-      setTimeout(() => {
-        this.notifications = this.notifications.filter(n => n.id !== id);
-      }, 5000);
-    },
-    closeKickedPopup() {
-      this.kickedPopup.visible = false;
-      this.kickedPopup.message = '';
-      if (this.kickedPopup.timer) clearInterval(this.kickedPopup.timer);
-      this.kickedPopup.timer = null;
-    },
-  },
-};
+  mixins: [PPage],
+}
 </script>
 
 <style scoped>

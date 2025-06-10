@@ -5,9 +5,9 @@
         <h1 class="text-3xl font-extrabold mb-8 text-center text-green-700 drop-shadow">Create Game</h1>
         <form @submit.prevent="submitGame" class="flex flex-col gap-5">
           <input
-            v-model="form.name"
+            v-model="form.username"
             type="text"
-            placeholder="Name"
+            placeholder="Username"
             required
             class="border border-green-300 px-4 py-2 rounded-lg bg-white/90 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-400"
           />
@@ -58,7 +58,7 @@ export default {
   data() {
     return {
       form: {
-        name: "",
+        username: "",
         description: "",
         status: "active",
         category_id: "",
@@ -94,7 +94,7 @@ export default {
       }
       if (res.ok) {
         this.message = data.message || "Game created!";
-        this.form = { name: "", description: "", status: "active", category_id: this.categories[0]?.id || "" };
+        this.form = { username: "", description: "", status: "active", category_id: this.categories[0]?.id || "" };
       } else if (res.status === 422 && data.errors) {
         this.message = Object.values(data.errors).flat()[0];
       } else {
@@ -105,7 +105,7 @@ export default {
       this.message = "Filling table...";
       for (let i = 0; i < 10; i++) {
         const game = {
-          name: "Game " + Math.floor(Math.random() * 10000),
+          username: "Game " + Math.floor(Math.random() * 10000),
           description: "Random game description.",
           status: Math.random() > 0.5 ? "active" : "inactive",
           category_id: this.categories[0]?.id || 1,

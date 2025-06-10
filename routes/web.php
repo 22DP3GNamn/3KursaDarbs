@@ -25,6 +25,13 @@ Route::post('/api/save-users', [UserController::class, 'saveUsers']);
 Route::get('/api/games', function () {
     return response()->json(Game::with('category')->get());
 });
+Route::get('/api/games/{id}', function ($id) {
+    $game = Game::with('category')->find($id);
+    if (!$game) {
+        return response()->json(['error' => 'Game not found'], 404);
+    }
+    return response()->json($game);
+});
 Route::get('/api/categories', function () {
     return response()->json(Category::all());
 });
@@ -54,7 +61,10 @@ Route::get('/profile', [ProfileController::class, 'show'])->name('profile')->mid
 Route::get('/users', function () {return User::all();})->middleware('auth');
 
 // Home Routes
-Route::get('/', function () {return view('home');})->name('home');
+Route::get('/', function () {
+    $games = Game::all();
+    return view('home', compact('games'));
+})->name('home');
 
 // Email Testing Route
 Route::get('/send-test-email', function () {Mail::to('recipient@example.com')->send(new TestMail());return 'Test email sent!';})->name('send-test-email');
@@ -74,6 +84,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/party/{party}/kick/{userId}', [PartyController::class, 'kickUser']);
     Route::delete('/party/{party}', [PartyController::class, 'disbandParty']);
     Route::get('/invitations', [PartyController::class, 'getInvitations']);
+    Route::post('/party/{party}/leave', [PartyController::class, 'leaveParty'])->middleware('auth');
 });
 
 // Game Routes
@@ -88,4 +99,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/games/create', fn() => view('creategame'));
     
     Route::post('/api/games', [GameController::class, 'store']);
+    
+    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 });

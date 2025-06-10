@@ -17,4 +17,26 @@ class ProfileController extends Controller
             'profileImage' => $profileImage,
         ]);
     }
+
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+
+        // Validate the incoming request
+        $request->validate([
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        // Update user profile
+        $user->username = $request->input('username');
+        $user->email = $request->input('email');
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->input('password'));
+        }
+        $user->save();
+
+        return response()->json(['message' => 'Profile updated successfully!'], 200);
+    }
 }

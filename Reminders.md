@@ -27,7 +27,7 @@ port:
 ----------------------------------------------------
 
   ➜  Local:   http://localhost:5173/     
-  ➜  Network: http://10.100.120.127:5173/
+  ➜  Network: http://127.0.0.1:8000/
 
 # If something doesnt work might help
 
@@ -50,3 +50,7 @@ php artisan migrate:status
 
 npm uninstall tailwindcss
 npm install tailwindcss@3.2.7
+
+# DB seeders
+
+php artisan db:seed

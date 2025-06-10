@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Events\PartyInvitationSent;
 use Illuminate\Support\Facades\Log;
+use App\Events\PartyLeft;
 
 class PartyController extends Controller
 {
@@ -49,11 +50,16 @@ class PartyController extends Controller
     public function inviteUser(Request $request, Party $party)
     {
         $request->validate([
-            'username' => 'required|exists:users,username',
+            'username' => 'required|string',
         ]);
 
         // Get the invited user (User B)
         $user = User::where('username', $request->username)->first();
+
+        // Handle case where user does not exist
+        if (!$user) {
+            return response()->json(['message' => 'User does not exist!'], 404);
+        }
 
         // Prevent inviting users who are already in a party
         if ($user->current_party_id) {
@@ -212,5 +218,29 @@ class PartyController extends Controller
     public function users()
     {
         return $this->belongsToMany(User::class, 'party_user');
+    }
+
+    public function leaveParty(Party $party)
+    {
+        $user = Auth::user();
+
+        if ($party->owner_id === $user->id) {
+            return response()->json(['message' => 'Party leader cannot leave the party!'], 403);
+        }
+
+        if (!$party->users()->find($user->id)) {
+            return response()->json(['message' => 'You are not part of this party!'], 403);
+        }
+
+        $party->users()->detach($user->id);
+        $user->current_party_id = null;
+        $user->save();
+
+        // Broadcast PartyLeft event
+        event(new PartyLeft($user, $party));
+
+        $updatedParty = Party::with('users')->find($party->id);
+
+        return response()->json(['message' => 'You have left the party.', 'party' => $updatedParty]);
     }
 }

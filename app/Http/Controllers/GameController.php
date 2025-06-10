@@ -10,7 +10,7 @@ class GameController extends Controller
     public function index()
     {
         $games = Game::with('category')->get();
-        return view('games.index', compact('games'));
+        return route('games.index', compact('games'));
     }
     public function show($id)
     {

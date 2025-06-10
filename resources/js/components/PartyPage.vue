@@ -125,12 +125,21 @@
               <span class="inline-block w-3 h-3 rounded-full bg-green-400 animate-pulse"></span>
               Party: <span class="text-green-900">{{ party.name }}</span>
             </h2>
-            <button
-              @click="disbandParty"
-              class="bg-gradient-to-r from-green-600 to-green-900 text-white px-5 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-green-700 hover:to-green-950 transition-all duration-200"
-            >
-              Disband Party
-            </button>
+            <div class="flex gap-4">
+              <button
+                v-if="party.owner_id === getUserId()"
+                @click="disbandParty"
+                class="bg-gradient-to-r from-green-600 to-green-900 text-white px-5 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-green-700 hover:to-green-950 transition-all duration-200"
+              >
+                Disband Party
+              </button>
+              <button
+                @click="leaveParty"
+                class="bg-gradient-to-r from-red-600 to-red-900 text-white px-5 py-2 rounded-lg font-semibold shadow hover:scale-105 hover:from-red-700 hover:to-red-950 transition-all duration-200"
+              >
+                Leave Party
+              </button>
+            </div>
           </div>
 
           <!-- Party Members -->

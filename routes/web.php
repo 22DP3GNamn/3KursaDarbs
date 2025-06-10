@@ -35,6 +35,7 @@ Route::get('/api/games/{id}', function ($id) {
 Route::get('/api/categories', function () {
     return response()->json(Category::all());
 });
+Route::post('/api/games', [GameController::class, 'store']); // Ensure the route for creating games is properly defined
 
 // Admin Routes
 Route::get('/admin', function () {return view('admin');})->middleware('admin');

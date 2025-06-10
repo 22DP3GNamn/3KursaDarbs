@@ -105,7 +105,7 @@ export default {
       this.message = "Filling table...";
       for (let i = 0; i < 10; i++) {
         const game = {
-          username: "Game " + Math.floor(Math.random() * 10000),
+          name: "Game " + Math.floor(Math.random() * 10000),
           description: "Random game description.",
           status: Math.random() > 0.5 ? "active" : "inactive",
           category_id: this.categories[0]?.id || 1,
